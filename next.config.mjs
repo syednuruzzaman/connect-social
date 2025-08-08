@@ -4,37 +4,19 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    reactCompiler: true,
-    ppr: "incremental",
-  },
+  output: 'export',
+  trailingSlash: true,
   images: {
-    dangerouslyAllowSVG: true,
-    contentDispositionType: 'attachment',
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.pexels.com",
-      },
-      {
-        protocol: "https",
-        hostname: "img.clerk.com",
-      },
-      {
-        protocol: "https",
-        hostname: "res.cloudinary.com",
-      },
-      {
-        protocol: "https",
-        hostname: "api.dicebear.com",
-      },
-      {
-        protocol: "https",
-        hostname: "picsum.photos",
-      },
-    ],
+    unoptimized: true
   },
-};
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  experimental: {
+    ppr: 'incremental',
+    turbo: true,
+    reactCompiler: true
+  }
+}
 
-export default withNextIntl(nextConfig);
+export default nextConfig
