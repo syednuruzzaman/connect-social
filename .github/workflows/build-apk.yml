@@ -1,0 +1,93 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build mobile app
+      run: |
+        # Create optimized mobile build
+        cp next.mobile.config.js next.config.mjs
+        npm run build
+        
+    - name: Sync Capacitor
+      run: |
+        npx cap sync android
+        
+    - name: Build Debug APK
+      working-directory: ./android
+      run: |
+        chmod +x ./gradlew
+        ./gradlew assembleDebug
+        
+    - name: Build Release APK (unsigned)
+      working-directory: ./android
+      run: |
+        ./gradlew assembleRelease
+        
+    - name: Upload Debug APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: connect-social-debug-apk
+        path: android/app/build/outputs/apk/debug/app-debug.apk
+        
+    - name: Upload Release APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: connect-social-release-apk
+        path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+        
+    - name: Create Release
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v1.0.${{ github.run_number }}
+        release_name: Connect Social v1.0.${{ github.run_number }}
+        body: |
+          🚀 Connect Social Mobile App Release
+          
+          ## 📱 APK Files
+          - **Debug APK**: For testing on devices
+          - **Release APK**: For Google Play Store (needs signing)
+          
+          ## 🎯 Installation
+          1. Download the debug APK
+          2. Enable "Unknown sources" on your Android device
+          3. Install the APK
+          
+          ## 🏪 Google Play Store
+          Use the release APK and sign it with your keystore for Play Store submission.
+          
+        draft: false
+        prerelease: false
