@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import AddPost from "@/components/AddPost";
 import Feed from "@/components/feed/Feed";
 import LeftMenu from "@/components/leftMenu/LeftMenu";
@@ -21,7 +21,9 @@ export default async function Page({ params }: Props) {
         <div className="flex flex-col gap-6">
           <UserSetup />
           <AddPost />
-          <Feed />
+          <Suspense fallback={<div className="animate-pulse bg-gray-100 h-32 rounded-lg">Loading feed...</div>}>
+            <Feed />
+          </Suspense>
         </div>
       </div>
       <div className="hidden lg:block w-[25%] xl:w-[30%]">
