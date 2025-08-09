@@ -48,9 +48,9 @@ jobs:
         echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
         echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
         
-    - name: Install Capacitor
+    - name: Install Capacitor and dependencies
       run: |
-        npm install -g @capacitor/cli @capacitor/core @capacitor/android
+        npm install -g @capacitor/cli @capacitor/core @capacitor/android typescript
         
     - name: Create simple app
       run: |
@@ -111,9 +111,38 @@ jobs:
         </html>
         EOF
         
-    - name: Initialize Capacitor
+    - name: Initialize Capacitor with JS config
       run: |
+        # Create package.json first
+        cat > package.json << 'EOF'
+        {
+          "name": "connect-social",
+          "version": "1.0.0",
+          "main": "index.js",
+          "dependencies": {
+            "@capacitor/core": "latest",
+            "@capacitor/android": "latest"
+          }
+        }
+        EOF
+        
+        # Initialize with JavaScript config
         npx cap init "Connect Social" "com.connectsocial.app" --web-dir=www
+        
+        # Create capacitor.config.js (JavaScript instead of TypeScript)
+        cat > capacitor.config.js << 'EOF'
+        module.exports = {
+          appId: 'com.connectsocial.app',
+          appName: 'Connect Social',
+          webDir: 'www',
+          server: {
+            androidScheme: 'https'
+          }
+        };
+        EOF
+        
+    - name: Add Android platform
+      run: |
         npx cap add android
         
     - name: Build APK
