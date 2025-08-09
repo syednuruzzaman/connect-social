@@ -6,10 +6,12 @@ import RightMenu from "@/components/rightMenu/RightMenu";
 import UserSetup from "@/components/UserSetup";
 
 type Props = {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 };
 
-export default function Page({ params }: Props) {
+export default async function Page({ params }: Props) {
+  const { locale } = await params;
+  
   return (
     <div className="flex gap-6 pt-6">
       <div className="hidden lg:block w-[25%] xl:w-[20%]">
