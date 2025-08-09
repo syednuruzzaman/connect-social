@@ -1,0 +1,79 @@
+name: Simple APK Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup Java 11
+      uses: actions/setup-java@v4
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Install Capacitor CLI
+      run: npm install -g @capacitor/cli
+      
+    - name: Install dependencies
+      run: npm install --legacy-peer-deps
+      
+    - name: Create minimal build
+      run: |
+        mkdir -p out
+        cat > out/index.html << 'EOF'
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Connect Social</title>
+            <style>
+                body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+                .container { max-width: 400px; margin: 0 auto; }
+                .logo { font-size: 2em; color: #007bff; margin-bottom: 20px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="logo">📱 Connect Social</div>
+                <h1>Welcome to Connect Social</h1>
+                <p>Your social media experience starts here!</p>
+                <button onclick="alert('Welcome to Connect Social!')" style="padding: 10px 20px; font-size: 16px; background: #007bff; color: white; border: none; border-radius: 5px;">Get Started</button>
+            </div>
+        </body>
+        </html>
+        EOF
+        
+    - name: Sync Capacitor
+      run: |
+        npx cap init "Connect Social" "com.connectsocial.app" --web-dir=out
+        npx cap add android
+        npx cap sync android
+        
+    - name: Build APK
+      run: |
+        cd android
+        chmod +x ./gradlew
+        ./gradlew assembleDebug
+        
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: connect-social-apk
+        path: android/app/build/outputs/apk/debug/app-debug.apk
