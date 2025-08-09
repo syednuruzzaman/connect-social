@@ -201,14 +201,33 @@ jobs:
         </resources>
         EOF
         
-        # Create simple icon
-        echo '<?xml version="1.0" encoding="utf-8"?>
-        <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-            <background android:drawable="@color/ic_launcher_background"/>
-            <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
-        </adaptive-icon>' > app/src/main/res/mipmap-hdpi/ic_launcher.xml
+        # Create simple icon (compatible with all API levels)
+        cat > app/src/main/res/drawable/ic_launcher.xml << 'EOF'
+        <?xml version="1.0" encoding="utf-8"?>
+        <vector xmlns:android="http://schemas.android.com/apk/res/android"
+            android:width="48dp"
+            android:height="48dp"
+            android:viewportWidth="48"
+            android:viewportHeight="48">
+            <path android:fillColor="#667eea"
+                android:pathData="M0,0h48v48h-48z"/>
+            <path android:fillColor="#ffffff"
+                android:pathData="M24,6c9.9,0 18,8.1 18,18s-8.1,18 -18,18s-18,-8.1 -18,-18S14.1,6 24,6z"/>
+            <path android:fillColor="#667eea"
+                android:pathData="M24,10c7.7,0 14,6.3 14,14s-6.3,14 -14,14s-14,-6.3 -14,-14S16.3,10 24,10z"/>
+            <path android:fillColor="#ffffff"
+                android:pathData="M18,18h12v3h-12z"/>
+            <path android:fillColor="#ffffff"
+                android:pathData="M18,23h12v3h-12z"/>
+            <path android:fillColor="#ffffff"
+                android:pathData="M18,28h8v3h-8z"/>
+        </vector>
+        EOF
         
-        echo '<resources><color name="ic_launcher_background">#667eea</color></resources>' > app/src/main/res/values/ic_launcher_background.xml
+        # Copy icons to all mipmap folders
+        for size in hdpi mdpi xhdpi xxhdpi xxxhdpi; do
+            cp app/src/main/res/drawable/ic_launcher.xml app/src/main/res/mipmap-$size/ic_launcher.xml
+        done
         
         # Create gradle wrapper properly
         mkdir -p gradle/wrapper
