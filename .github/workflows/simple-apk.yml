@@ -25,7 +25,22 @@ jobs:
         node-version: '18'
         
     - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
+      run: |
+        # Install Android SDK using manual method
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+        unzip -q commandlinetools-linux-9477386_latest.zip
+        mkdir -p $HOME/android-sdk/cmdline-tools
+        mv cmdline-tools $HOME/android-sdk/cmdline-tools/latest
+        
+        export ANDROID_HOME=$HOME/android-sdk
+        export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+        
+        # Accept licenses and install required components
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-29" "build-tools;29.0.3"
+        
+        echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+        echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
       
     - name: Install Capacitor CLI
       run: npm install -g @capacitor/cli
