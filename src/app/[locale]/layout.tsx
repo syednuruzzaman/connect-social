@@ -8,13 +8,6 @@ export const dynamic = 'force-dynamic';
 const inter = Inter({ subsets: ["latin"] });
 const locales = ['en', 'bn', 'fr', 'ar', 'ur', 'hi', 'zh'];
 
-// Generate static params for all supported locales
-export async function generateStaticParams() {
-  return locales.map((locale) => ({
-    locale: locale,
-  }));
-}
-
 export default async function LocaleLayout({
   children,
   params

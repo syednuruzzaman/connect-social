@@ -5,14 +5,6 @@ import LeftMenu from "@/components/leftMenu/LeftMenu";
 import RightMenu from "@/components/rightMenu/RightMenu";
 import UserSetup from "@/components/UserSetup";
 
-// Generate static params for all supported locales
-export async function generateStaticParams() {
-  const locales = ['en', 'bn', 'fr', 'ar', 'ur', 'hi', 'zh'];
-  return locales.map((locale) => ({
-    locale: locale,
-  }));
-}
-
 type Props = {
   params: Promise<{ locale: string }>;
 };
