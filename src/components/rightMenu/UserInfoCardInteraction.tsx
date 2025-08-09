@@ -1,7 +1,7 @@
 "use client";
 
 import { switchBlock, switchFollow } from "@/lib/actions";
-import { useState } from "react";
+import { useOptimistic, useState } from "react";
 import Link from "next/link";
 
 const UserInfoCardInteraction = ({
@@ -24,8 +24,7 @@ const UserInfoCardInteraction = ({
   });
 
   const follow = async () => {
-    console.log("Follow action not available in mobile app");
-    // No optimistic updates in mobile version
+    switchOptimisticState("follow");
     try {
       await switchFollow(userId);
       setUserState((prev) => ({
@@ -38,8 +37,7 @@ const UserInfoCardInteraction = ({
   };
 
   const block = async () => {
-    console.log("Block action not available in mobile app");
-    // No optimistic updates in mobile version
+    switchOptimisticState("block");
     try {
       await switchBlock(userId);
       setUserState((prev) => ({
@@ -49,20 +47,29 @@ const UserInfoCardInteraction = ({
     } catch (err) {}
   };
 
-  // Mobile-compatible state (no optimistic updates)
-  const [optimisticState, setOptimisticState] = useState(userState);
+  const [optimisticState, switchOptimisticState] = useOptimistic(
+    userState,
+    (state, value: "follow" | "block") =>
+      value === "follow"
+        ? {
+            ...state,
+            following: state.following && false,
+            followingRequestSent:
+              !state.following && !state.followingRequestSent ? true : false,
+          }
+        : { ...state, blocked: !state.blocked }
+  );
   return (
     <>
-      <button 
-        className="w-full bg-blue-500 text-white text-sm rounded-md p-2 hover:bg-blue-600 transition-colors opacity-50"
-        onClick={() => console.log("Follow action not available in mobile app")}
-      >
-        {optimisticState.following
-          ? "Following"
-          : optimisticState.followingRequestSent
-          ? "Friend Request Sent"
-          : "Follow"}
-      </button>
+      <form action={follow}>
+        <button className="w-full bg-blue-500 text-white text-sm rounded-md p-2 hover:bg-blue-600 transition-colors">
+          {optimisticState.following
+            ? "Following"
+            : optimisticState.followingRequestSent
+            ? "Friend Request Sent"
+            : "Follow"}
+        </button>
+      </form>
       
       {/* Message Button */}
       <Link 
@@ -72,11 +79,13 @@ const UserInfoCardInteraction = ({
         💬 Send Message
       </Link>
       
-      <button className="self-end" onClick={() => console.log("Block action not available in mobile app")}>
-        <span className="text-red-400 text-xs cursor-pointer opacity-50">
-          {optimisticState.blocked ? "Unblock User" : "Block User"}
-        </span>
-      </button>
+      <form action={block} className="self-end ">
+        <button>
+          <span className="text-red-400 text-xs cursor-pointer">
+            {optimisticState.blocked ? "Unblock User" : "Block User"}
+          </span>
+        </button>
+      </form>
     </>
   );
 };

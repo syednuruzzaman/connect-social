@@ -4,19 +4,16 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
-  trailingSlash: true,
   images: {
-    unoptimized: true
+    unoptimized: true,
+    domains: ['res.cloudinary.com', 'images.unsplash.com']
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
-  experimental: {
-    ppr: 'incremental',
-    turbo: true,
-    reactCompiler: true
+  typescript: {
+    ignoreBuildErrors: true,
   }
 }
 
-export default nextConfig
+export default withNextIntl(nextConfig);

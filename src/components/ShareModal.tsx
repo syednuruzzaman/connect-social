@@ -197,6 +197,12 @@ const ShareModal = ({ isOpen, onClose, shareUrl, shareTitle, shareDescription }:
       },
     },
     {
+      name: "Email",
+      icon: Mail,
+      color: "text-red-600 hover:text-red-800",
+      bgColor: "hover:bg-red-50",
+    },
+    {
       name: "Gmail",
       icon: Mail,
       color: "text-red-600 hover:text-red-800",

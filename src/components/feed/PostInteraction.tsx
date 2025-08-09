@@ -3,7 +3,7 @@
 import { switchLike } from "@/lib/actions";
 import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useOptimistic, useState, useEffect } from "react";
 import ShareModal from "@/components/ShareModal";
 
 const PostInteraction = ({
@@ -43,18 +43,21 @@ const PostInteraction = ({
     }
   }, [isMounted, isLoaded, userId, likes]);
 
-  // Mobile-compatible state (no optimistic updates)
-  const [optimisticLike, setOptimisticLike] = useState({
-    likeCount: likes.length,
-    isLiked: likes.includes(userId || "")
-  });
+  const [optimisticLike, switchOptimisticLike] = useOptimistic(
+    likeState,
+    (state, value) => {
+      return {
+        likeCount: state.isLiked ? state.likeCount - 1 : state.likeCount + 1,
+        isLiked: !state.isLiked,
+      };
+    }
+  );
 
   const likeAction = async () => {
     // Only allow action if user is authenticated and component is mounted
     if (!isMounted || !isLoaded || !userId) return;
     
-    // No optimistic updates in mobile version
-    console.log("Like action not available in mobile app");
+    switchOptimisticLike("");
     try {
       switchLike(postId);
       setLikeState((state) => ({
@@ -135,12 +138,11 @@ const PostInteraction = ({
       <div className="flex items-center justify-between text-xs my-3">
         <div className="flex gap-2 sm:gap-3">
           <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-lg">
-            <div>
+            <form action={likeAction}>
               <button 
                 className="flex items-center justify-center p-1 hover:bg-slate-200 rounded-lg transition-colors min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
                 aria-label={optimisticLike.isLiked ? "Unlike post" : "Like post"}
                 title={optimisticLike.isLiked ? "Unlike this post" : "Like this post"}
-                onClick={() => console.log("Like action not available in mobile app")}
               >
                 <Image
                   src={optimisticLike.isLiked ? "/liked.png" : "/like.png"}
@@ -150,7 +152,7 @@ const PostInteraction = ({
                   className="w-4 h-4 sm:w-5 sm:h-5"
                 />
               </button>
-            </div>
+            </form>
             <span className="text-gray-300 text-xs">|</span>
             <span className="text-gray-500 text-xs font-medium">
               {optimisticLike.likeCount}

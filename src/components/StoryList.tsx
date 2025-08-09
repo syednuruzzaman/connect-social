@@ -5,7 +5,7 @@ import { useUser } from "@clerk/nextjs";
 import { Story, User } from "@prisma/client";
 import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
-import { useState } from "react";
+import { useOptimistic, useState } from "react";
 import StoryModal from "./StoryModal";
 import StoryViewer from "./StoryViewer";
 import { Plus, Eye } from "lucide-react";
@@ -38,14 +38,38 @@ const StoryList = ({
   const add = async () => {
     if (!img?.secure_url) return;
 
-    console.log("Add story not available in mobile app");
-    // No optimistic updates in mobile version
+    addOptimisticStory({
+      id: Math.random(),
+      img: img.secure_url,
+      createdAt: new Date(Date.now()),
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      userId: userId,
+      user: {
+        id: userId,
+        username: "Sending...",
+        avatar: user?.imageUrl || "/noAvatar.png",
+        cover: "",
+        description: "",
+        name: "",
+        surname: "",
+        city: "",
+        work: "",
+        school: "",
+        website: "",
+        createdAt: new Date(Date.now()),
+      },
+      video: null,
+      text: null,
+      mediaType: "image",
+      privacy: "public",
+      customViewers: null,
+      backgroundColor: null,
+      textColor: null,
+    });
 
     try {
       const createdStory = await addStory(img.secure_url);
-      if (createdStory) {
-        setStoryList((prev) => [createdStory, ...prev]);
-      }
+      setStoryList((prev) => [createdStory!, ...prev]);
       setImg(null)
     } catch (err) {}
   };
@@ -54,8 +78,10 @@ const StoryList = ({
     setStoryList((prev) => [newStory, ...prev.filter(s => s.userId !== newStory.userId)]);
   };
 
-  // Mobile-compatible state (no optimistic updates)
-  const [optimisticStories, setOptimisticStories] = useState(stories);
+  const [optimisticStories, addOptimisticStory] = useOptimistic(
+    storyList,
+    (state, value: StoryWithUser) => [value, ...state]
+  );
 
   const renderStoryContent = (story: StoryWithUser) => {
     if (story.mediaType === "text") {

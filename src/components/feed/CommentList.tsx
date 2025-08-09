@@ -27,7 +27,7 @@ type Comment = {
   postId: number;
 };
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useOptimistic, useState, useEffect } from "react";
 type CommentWithUser = Comment & { user: User };
 
 const CommentList = ({
@@ -53,21 +53,41 @@ const CommentList = ({
     const tempId = Date.now() + Math.random();
     const now = new Date();
 
-    console.log("Add comment not available in mobile app");
-    // No optimistic updates in mobile version
+    addOptimisticComment({
+      id: tempId,
+      desc,
+      createdAt: now,
+      updatedAt: now,
+      userId: user.id,
+      postId: postId,
+      user: {
+        id: user.id,
+        username: user.username || "Sending Please Wait...",
+        avatar: user.imageUrl || "/noAvatar.png",
+        cover: null,
+        description: null,
+        name: user.firstName || null,
+        surname: user.lastName || null,
+        city: null,
+        work: null,
+        school: null,
+        website: null,
+        createdAt: now,
+      },
+    });
     try {
       const createdComment = await addComment(postId, desc);
-      if (createdComment) {
-        setCommentState((prev) => [createdComment, ...prev]);
-        setDesc(""); // Clear the input after successful submission
-      }
+      setCommentState((prev) => [createdComment, ...prev]);
+      setDesc(""); // Clear the input after successful submission
     } catch (err) {
       console.error("Failed to add comment:", err);
     }
   };
 
-  // Mobile-compatible state (no optimistic updates)
-  const [optimisticComments, setOptimisticComments] = useState(comments);
+  const [optimisticComments, addOptimisticComment] = useOptimistic(
+    commentState,
+    (state, value: CommentWithUser) => [value, ...state]
+  );
 
   return (
     <>
@@ -81,25 +101,25 @@ const CommentList = ({
             height={32}
             className="w-8 h-8 rounded-full"
           />
-          <div
+          <form
+            action={add}
             className="flex-1 flex items-center justify-between bg-slate-100 rounded-xl text-sm px-6 py-2 w-full"
           >
             <input
               type="text"
-              placeholder="Write a comment... (not available in mobile)"
+              placeholder="Write a comment..."
               className="bg-transparent outline-none flex-1"
               value={desc}
               onChange={(e) => setDesc(e.target.value)}
-              disabled
             />
             <Image
               src="/emoji.png"
               alt=""
               width={16}
               height={16}
-              className="cursor-pointer opacity-50"
+              className="cursor-pointer"
             />
-          </div>
+          </form>
         </div>
       )}
       

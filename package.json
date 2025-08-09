@@ -5,31 +5,24 @@
   "scripts": {
     "dev": "next dev --turbo",
     "build": "next build",
-    "build:mobile": "node build-mobile.js",
     "start": "next start",
-    "lint": "next lint",
-    "apk:build": "build-apk.bat",
-    "apk:sync": "npx cap sync android",
-    "apk:open": "npx cap open android"
+    "lint": "next lint"
   },
   "prisma": {
     "seed": "tsx prisma/seed-users.ts"
   },
   "dependencies": {
-    "@capacitor/android": "^7.4.2",
-    "@capacitor/cli": "^7.4.2",
-    "@capacitor/core": "^7.4.2",
     "@clerk/nextjs": "^5.7.5",
     "@prisma/client": "^5.15.0",
     "babel-plugin-react-compiler": "^0.0.0-experimental-938cd9a-20240601",
     "cloudinary": "^2.7.0",
     "lucide-react": "^0.536.0",
-    "next": "15.0.0-rc.0",
+    "next": "^14.2.0",
     "next-cloudinary": "^6.6.2",
     "next-intl": "^4.3.4",
     "prisma": "^5.15.0",
-    "react": "19.0.0-rc-f994737d14-20240522",
-    "react-dom": "19.0.0-rc-f994737d14-20240522",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "svix": "^1.24.0",
     "zod": "^3.23.8"
   },
@@ -38,7 +31,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
-    "eslint-config-next": "15.0.0-rc.0",
+    "eslint-config-next": "^14.2.0",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "tsx": "^4.20.3",

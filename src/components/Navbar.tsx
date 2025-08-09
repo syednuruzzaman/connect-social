@@ -7,10 +7,9 @@ import Image from "next/image";
 import ClientSearchBox from "./ClientSearchBox";
 import AdminLink from "./AdminLink";
 import NotificationBadge from "./NotificationBadge";
-import LanguageSwitcher from "./LanguageSwitcher";
-import { useState, useEffect } from "react";
 import {
   ClerkLoaded,
+  ClerkLoading,
   SignedIn,
   SignedOut,
   UserButton,
@@ -19,11 +18,6 @@ import {
 const Navbar = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const handleHomeClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -101,32 +95,31 @@ const Navbar = () => {
       </div>
       {/* RIGHT */}
       <div className="flex items-center gap-2 sm:gap-4 lg:gap-6 flex-shrink-0">
-        {mounted && (
-          <ClerkLoaded>
-            <SignedIn>
-              <Link href="/people" className="cursor-pointer hover:scale-110 transition-transform">
-                <Image src="/people.png" alt="People" width={20} height={20} className="sm:w-6 sm:h-6" />
-              </Link>
-              <Link href="/messages" className="cursor-pointer hover:scale-110 transition-transform">
-                <Image src="/messages.png" alt="Messages" width={18} height={18} className="sm:w-5 sm:h-5" />
-              </Link>
-              <Link href="/notifications" className="cursor-pointer hover:scale-110 transition-transform relative">
-                <Image src="/notifications.png" alt="Notifications" width={18} height={18} className="sm:w-5 sm:h-5" />
-                <NotificationBadge />
-              </Link>
-              <AdminLink />
-              <LanguageSwitcher />
-              <UserButton />
-            </SignedIn>
-            <SignedOut>
-              <LanguageSwitcher />
-              <div className="flex items-center gap-2 text-sm">
-                <Image src="/login.png" alt="" width={18} height={18} />
-                <Link href="/sign-in" className="hover:text-blue-600 transition-colors">Login/Register</Link>
-              </div>
-            </SignedOut>
-          </ClerkLoaded>
-        )}
+        <ClerkLoading>
+          <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-500 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white" />
+        </ClerkLoading>
+        <ClerkLoaded>
+          <SignedIn>
+            <Link href="/people" className="cursor-pointer hover:scale-110 transition-transform">
+              <Image src="/people.png" alt="People" width={20} height={20} className="sm:w-6 sm:h-6" />
+            </Link>
+            <Link href="/messages" className="cursor-pointer hover:scale-110 transition-transform">
+              <Image src="/messages.png" alt="Messages" width={18} height={18} className="sm:w-5 sm:h-5" />
+            </Link>
+            <Link href="/notifications" className="cursor-pointer hover:scale-110 transition-transform relative">
+              <Image src="/notifications.png" alt="Notifications" width={18} height={18} className="sm:w-5 sm:h-5" />
+              <NotificationBadge />
+            </Link>
+            <AdminLink />
+            <UserButton />
+          </SignedIn>
+          <SignedOut>
+            <div className="flex items-center gap-2 text-sm">
+              <Image src="/login.png" alt="" width={18} height={18} />
+              <Link href="/sign-in" className="hover:text-blue-600 transition-colors">Login/Register</Link>
+            </div>
+          </SignedOut>
+        </ClerkLoaded>
         <MobileMenu />
       </div>
     </div>
