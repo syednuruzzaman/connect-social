@@ -117,6 +117,25 @@ jobs:
         sdk.dir=$ANDROID_HOME
         EOF
         
+        # Create gradle.properties with AndroidX support
+        cat > gradle.properties << 'EOF'
+        # AndroidX package structure to make it clearer which packages are bundled with the
+        # Android operating system, and which are packaged with your app's APK
+        android.useAndroidX=true
+        # Automatically convert third-party libraries to use AndroidX
+        android.enableJetifier=true
+        # Enables namespacing of each library's R class so that its R class includes only the
+        # resources declared in the library itself and none from the library's dependencies,
+        # thereby reducing the size of the R class for that library
+        android.nonTransitiveRClass=true
+        # Enable Gradle build cache
+        org.gradle.caching=true
+        # Enable parallel builds
+        org.gradle.parallel=true
+        # Configure JVM arguments
+        org.gradle.jvmargs=-Xmx2048m -XX:MaxPermSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+        EOF
+        
         echo "✅ Project structure created"
         
     - name: Create App Module

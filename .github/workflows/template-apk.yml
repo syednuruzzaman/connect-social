@@ -65,6 +65,16 @@ jobs:
         include ':app'
         EOF
         
+        # Create gradle.properties with AndroidX support
+        cat > gradle.properties << 'EOF'
+        android.useAndroidX=true
+        android.enableJetifier=true
+        android.nonTransitiveRClass=true
+        org.gradle.caching=true
+        org.gradle.parallel=true
+        org.gradle.jvmargs=-Xmx2048m -XX:MaxPermSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+        EOF
+        
         mkdir -p app/src/main/java/com/connectsocial/app
         mkdir -p app/src/main/res/{values,layout,drawable,mipmap-hdpi,mipmap-mdpi,mipmap-xhdpi,mipmap-xxhdpi,mipmap-xxxhdpi}
         
