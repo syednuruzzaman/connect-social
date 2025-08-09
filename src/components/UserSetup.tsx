@@ -4,8 +4,17 @@ import { useUser } from "@clerk/nextjs";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { ClientOnly } from "@/hooks/useClientMounted";
 
 export default function UserSetup() {
+  return (
+    <ClientOnly fallback={<div className="animate-pulse bg-gray-100 h-20 rounded-lg"></div>}>
+      <UserSetupContent />
+    </ClientOnly>
+  );
+}
+
+function UserSetupContent() {
   const { user } = useUser();
   const [status, setStatus] = useState<string>("");
   const [loading, setLoading] = useState(false);

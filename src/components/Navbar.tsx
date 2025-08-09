@@ -7,6 +7,7 @@ import Image from "next/image";
 import ClientSearchBox from "./ClientSearchBox";
 import AdminLink from "./AdminLink";
 import NotificationBadge from "./NotificationBadge";
+import { ClientOnly } from "@/hooks/useClientMounted";
 import {
   ClerkLoaded,
   ClerkLoading,
@@ -95,10 +96,13 @@ const Navbar = () => {
       </div>
       {/* RIGHT */}
       <div className="flex items-center gap-2 sm:gap-4 lg:gap-6 flex-shrink-0">
-        <ClerkLoading>
+        <ClientOnly fallback={
           <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-500 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white" />
-        </ClerkLoading>
-        <ClerkLoaded>
+        }>
+          <ClerkLoading>
+            <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-500 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white" />
+          </ClerkLoading>
+          <ClerkLoaded>
           <SignedIn>
             <Link href="/people" className="cursor-pointer hover:scale-110 transition-transform">
               <Image src="/people.png" alt="People" width={20} height={20} className="sm:w-6 sm:h-6" />
@@ -119,7 +123,8 @@ const Navbar = () => {
               <Link href="/sign-in" className="hover:text-blue-600 transition-colors">Login/Register</Link>
             </div>
           </SignedOut>
-        </ClerkLoaded>
+          </ClerkLoaded>
+        </ClientOnly>
         <MobileMenu />
       </div>
     </div>
