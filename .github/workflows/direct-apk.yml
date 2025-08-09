@@ -495,7 +495,7 @@ jobs:
           file "$APK_PATH"
           
           # Verify it's a valid APK
-          if file "$APK_PATH" | grep -q "Zip archive"; then
+          if file "$APK_PATH" | grep -E -q "Zip archive|Android package"; then
             echo "✅ APK file format verified"
           else
             echo "❌ APK file format verification failed"
