@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -26,11 +27,16 @@ export default async function Page({ params }: Props) {
             </div>
             
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <h2 className="font-semibold text-green-800 mb-2">🚀 Ready for Features</h2>
-              <p className="text-green-700">
-                Authentication, database, and core infrastructure are all set up.
-                Features will be added incrementally.
+              <h2 className="font-semibold text-green-800 mb-3">🚀 Access Full Features</h2>
+              <p className="text-green-700 mb-4">
+                All social media features are ready including posts, feed, navigation, and user profiles.
               </p>
+              <Link 
+                href="/social" 
+                className="inline-block bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+              >
+                Launch Social Features →
+              </Link>
             </div>
             
             <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
