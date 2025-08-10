@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { useUser } from "@clerk/nextjs";
 import Post from "@/components/feed/Post";
 
@@ -23,35 +23,72 @@ interface PostData {
   };
 }
 
-const ClientFeed = ({ username }: { username?: string }) => {
+interface ClientFeedProps {
+  username?: string;
+}
+
+interface ClientFeedRef {
+  refreshFeed: () => void;
+}
+
+const ClientFeed = forwardRef<ClientFeedRef, ClientFeedProps>(({ username }, ref) => {
   const { user, isLoaded } = useUser();
   const [posts, setPosts] = useState<PostData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      if (!isLoaded) return;
+  const fetchPosts = async () => {
+    if (!isLoaded) return;
+    
+    try {
+      setLoading(true);
+      const url = username ? `/api/posts?username=${username}` : '/api/posts';
+      const response = await fetch(url);
       
-      try {
-        setLoading(true);
-        const url = username ? `/api/posts?username=${username}` : '/api/posts';
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch posts');
-        }
-        
-        const data = await response.json();
-        setPosts(data);
-      } catch (err) {
-        console.error('Error fetching posts:', err);
-        setError('Failed to load posts');
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error('Failed to fetch posts');
       }
-    };
+      
+      const data = await response.json();
+      setPosts(data);
+    } catch (err) {
+      console.error('Error fetching posts:', err);
+      setError('Failed to load posts');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  // Expose refreshFeed function to parent component
+  useImperativeHandle(ref, () => ({
+    refreshFeed: fetchPosts
+  }));
+
+  const handleDeletePost = async (postId: number) => {
+    try {
+      const response = await fetch(`/api/posts?id=${postId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete post');
+      }
+
+      // Remove the post from the local state
+      setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+      alert('Post deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      alert(`Failed to delete post: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  const refreshFeed = () => {
+    fetchPosts();
+  };
+
+  useEffect(() => {
     fetchPosts();
   }, [username, isLoaded, user]);
 
@@ -133,10 +170,17 @@ const ClientFeed = ({ username }: { username?: string }) => {
   return (
     <div className="space-y-6">
       {posts.map((post) => (
-        <Post key={post.id} post={post} />
+        <Post 
+          key={post.id} 
+          post={post} 
+          onDelete={handleDeletePost}
+          currentUserId={user?.id}
+        />
       ))}
     </div>
   );
-};
+});
+
+ClientFeed.displayName = 'ClientFeed';
 
 export default ClientFeed;

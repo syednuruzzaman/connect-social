@@ -12,10 +12,19 @@ const NotificationBadge = () => {
       if (!isLoaded || !user?.id) return;
       
       try {
-        const response = await fetch('/api/notifications/count');
+        const response = await fetch('/api/notifications/count', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
         if (response.ok) {
           const data = await response.json();
           setUnreadCount(data.unreadCount || 0);
+        } else {
+          console.warn('Failed to fetch notification count:', response.status);
+          setUnreadCount(0);
         }
       } catch (error) {
         console.error('Error fetching notification count:', error);

@@ -24,6 +24,7 @@ type User = {
 import PostInteraction from "./PostInteraction";
 import { Suspense } from "react";
 import PostInfo from "./PostInfo";
+import Comments from "./Comments";
 
 type FeedPostType = PostType & { user: User } & {
   likes: [{ userId: string }];
@@ -31,9 +32,17 @@ type FeedPostType = PostType & { user: User } & {
   _count: { comments: number };
 };
 
-const Post = ({ post }: { post: FeedPostType }) => {
+type PostProps = {
+  post: FeedPostType;
+  onDelete?: (postId: number) => Promise<void>;
+  currentUserId?: string;
+};
+
+const Post = ({ post, onDelete, currentUserId }: PostProps) => {
   const { user, isLoaded } = useUser();
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showComments, setShowComments] = useState(false);
   
   // Detect if the media is a video based on URL extension
   const isVideo = post.img && (
@@ -44,6 +53,25 @@ const Post = ({ post }: { post: FeedPostType }) => {
     post.img.includes('.mov') ||
     post.img.includes('.avi')
   );
+
+  const handleDelete = async () => {
+    if (!onDelete) return;
+    
+    const confirmed = confirm('Are you sure you want to delete this post?');
+    if (!confirmed) return;
+
+    setIsDeleting(true);
+    try {
+      await onDelete(post.id);
+    } catch (error) {
+      console.error('Delete failed:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  // Check if current user can delete this post
+  const canDelete = currentUserId && post.userId === currentUserId;
 
   // Prevent hydration mismatch by waiting for user to load
   if (!isLoaded) {
@@ -129,8 +157,19 @@ const Post = ({ post }: { post: FeedPostType }) => {
             commentNumber={post._count.comments}
             postDesc={post.desc}
             postUserId={post.userId}
+            onToggleComments={() => setShowComments(!showComments)}
+            showComments={showComments}
           />
         </Suspense>
+        
+        {/* COMMENTS SECTION */}
+        {showComments && (
+          <div id={`comments-${post.id}`} className="mt-4">
+            <Suspense fallback="Loading comments...">
+              <Comments postId={Number(post.id)} />
+            </Suspense>
+          </div>
+        )}
       </div>
     );
   }
@@ -153,7 +192,7 @@ const Post = ({ post }: { post: FeedPostType }) => {
               : post.user.username}
           </span>
         </div>
-        {user?.id === post.user.id && <PostInfo postId={post.id} />}
+        {user?.id === post.user.id && <PostInfo postId={post.id} onDelete={onDelete} />}
       </div>
       {/* DESC */}
       <div className="flex flex-col gap-4">
@@ -216,8 +255,19 @@ const Post = ({ post }: { post: FeedPostType }) => {
           commentNumber={post._count.comments}
           postDesc={post.desc}
           postUserId={post.userId}
+          onToggleComments={() => setShowComments(!showComments)}
+          showComments={showComments}
         />
       </Suspense>
+      
+      {/* COMMENTS SECTION */}
+      {showComments && (
+        <div id={`comments-${post.id}`} className="mt-4">
+          <Suspense fallback="Loading comments...">
+            <Comments postId={Number(post.id)} />
+          </Suspense>
+        </div>
+      )}
     </div>
   );
 };

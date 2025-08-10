@@ -2,8 +2,9 @@
 
 import { switchLike } from "@/lib/actions";
 import { useAuth } from "@clerk/nextjs";
-import Image from "next/image";
 import { useOptimistic, useState, useEffect } from "react";
+import { MessageCircle, Share2 } from "lucide-react";
+import Image from "next/image";
 import ShareModal from "@/components/ShareModal";
 
 const PostInteraction = ({
@@ -12,12 +13,16 @@ const PostInteraction = ({
   commentNumber,
   postDesc,
   postUserId,
+  onToggleComments,
+  showComments,
 }: {
   postId: number;
   likes: string[];
   commentNumber: number;
   postDesc?: string;
   postUserId?: string;
+  onToggleComments?: () => void;
+  showComments?: boolean;
 }) => {
   const { isLoaded, userId } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
@@ -71,6 +76,20 @@ const PostInteraction = ({
     setShowShareModal(true);
   };
 
+  const handleComment = () => {
+    if (onToggleComments) {
+      onToggleComments();
+    } else {
+      // Fallback: scroll to comment section or toggle comment form
+      const commentSection = document.getElementById(`comments-${postId}`);
+      if (commentSection) {
+        commentSection.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        console.log('Comment functionality - postId:', postId);
+      }
+    }
+  };
+
   // Generate share URL and title
   const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/post/${postId}`;
   const shareTitle = postDesc ? 
@@ -80,54 +99,39 @@ const PostInteraction = ({
   // Don't render interactive elements until hydrated to prevent mismatch
   if (!isMounted) {
     return (
-      <div className="flex items-center justify-between text-xs my-3">
-        <div className="flex gap-2 sm:gap-3">
-          <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-lg">
-            <div className="flex items-center justify-center p-1 min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px]">
+      <div className="flex items-center text-xs my-3">
+        <div className="flex gap-3">
+          <div className="flex items-center gap-3 bg-gradient-to-r from-red-50 to-pink-50 hover:from-red-100 hover:to-pink-100 px-4 py-2 rounded-full transition-all duration-200 shadow-sm">
+            <div className="p-1 bg-red-500 rounded-full">
               <Image
                 src="/like.png"
-                width={20}
-                height={20}
+                width={16}
+                height={16}
                 alt="Like"
-                className="w-4 h-4 sm:w-5 sm:h-5 opacity-50"
+                className="w-4 h-4"
               />
             </div>
-            <span className="text-gray-300 text-xs">|</span>
-            <span className="text-gray-500 text-xs font-medium">
+            <span className="text-red-600 text-sm font-medium">
               {likes.length}
               <span className="hidden sm:inline"> Likes</span>
             </span>
           </div>
-          <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-lg">
-            <div className="flex items-center justify-center p-1 min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px]">
-              <Image
-                src="/comment.png"
-                width={20}
-                height={20}
-                alt="Comment"
-                className="w-4 h-4 sm:w-5 sm:h-5 opacity-50"
-              />
+          <div className="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-blue-50 hover:from-blue-100 hover:to-blue-100 px-4 py-2 rounded-full transition-all duration-200 shadow-sm">
+            <div className="p-1 bg-blue-500 rounded-full">
+              <MessageCircle className="w-4 h-4 text-white" />
             </div>
-            <span className="text-gray-300 text-xs">|</span>
-            <span className="text-gray-500 text-xs font-medium">
+            <span className="text-blue-600 text-sm font-medium">
               {commentNumber}<span className="hidden sm:inline"> Comments</span>
             </span>
           </div>
-        </div>
-        <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-lg">
-          <div className="flex items-center justify-center p-1 min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px]">
-            <Image
-              src="/share.png"
-              width={20}
-              height={20}
-              alt="Share"
-              className="w-4 h-4 sm:w-5 sm:h-5 opacity-50"
-            />
+          <div className="flex items-center gap-3 bg-gradient-to-r from-green-50 to-green-50 hover:from-green-100 hover:to-green-100 px-4 py-2 rounded-full transition-all duration-200 shadow-sm">
+            <div className="p-1 bg-green-500 rounded-full">
+              <Share2 className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-green-600 text-sm font-medium">
+              <span className="hidden sm:inline">Share</span>
+            </span>
           </div>
-          <span className="text-gray-300 text-xs">|</span>
-          <span className="text-gray-500 text-xs font-medium">
-            <span className="hidden sm:inline">Share</span>
-          </span>
         </div>
       </div>
     );
@@ -135,69 +139,69 @@ const PostInteraction = ({
 
   return (
     <>
-      <div className="flex items-center justify-between text-xs my-3">
-        <div className="flex gap-2 sm:gap-3">
-          <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-lg">
+      <div className="flex items-center text-xs my-3">
+        <div className="flex gap-3">
+          <div className={`flex items-center gap-3 px-4 py-2 rounded-full transition-all duration-200 shadow-sm cursor-pointer ${
+            optimisticLike.isLiked 
+              ? 'bg-gradient-to-r from-red-100 to-pink-100 hover:from-red-200 hover:to-pink-200' 
+              : 'bg-gradient-to-r from-red-50 to-pink-50 hover:from-red-100 hover:to-pink-100'
+          }`}>
             <form action={likeAction}>
               <button 
-                className="flex items-center justify-center p-1 hover:bg-slate-200 rounded-lg transition-colors min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                className="flex items-center justify-center p-1 rounded-full transition-colors focus:outline-none"
                 aria-label={optimisticLike.isLiked ? "Unlike post" : "Like post"}
                 title={optimisticLike.isLiked ? "Unlike this post" : "Like this post"}
               >
-                <Image
-                  src={optimisticLike.isLiked ? "/liked.png" : "/like.png"}
-                  width={20}
-                  height={20}
-                  alt="Like"
-                  className="w-4 h-4 sm:w-5 sm:h-5"
-                />
+                <div className={`p-1 rounded-full ${optimisticLike.isLiked ? 'bg-red-600' : 'bg-red-500'}`}>
+                  <Image
+                    src={optimisticLike.isLiked ? "/liked.png" : "/like.png"}
+                    width={16}
+                    height={16}
+                    alt="Like"
+                    className="w-4 h-4"
+                  />
+                </div>
               </button>
             </form>
-            <span className="text-gray-300 text-xs">|</span>
-            <span className="text-gray-500 text-xs font-medium">
+            <span className={`text-sm font-medium ${optimisticLike.isLiked ? 'text-red-700' : 'text-red-600'}`}>
               {optimisticLike.likeCount}
               <span className="hidden sm:inline"> Likes</span>
             </span>
           </div>
-          <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-lg">
+          <div className={`flex items-center gap-3 px-4 py-2 rounded-full transition-all duration-200 shadow-sm cursor-pointer ${
+            showComments 
+              ? 'bg-gradient-to-r from-blue-100 to-blue-100 hover:from-blue-200 hover:to-blue-200' 
+              : 'bg-gradient-to-r from-blue-50 to-blue-50 hover:from-blue-100 hover:to-blue-100'
+          }`}>
             <button 
-              className="flex items-center justify-center p-1 hover:bg-slate-200 rounded-lg transition-colors min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
-              aria-label="Comment on post"
-              title="Comment on this post"
+              onClick={handleComment}
+              className="flex items-center justify-center p-1 rounded-full transition-colors focus:outline-none"
+              aria-label={showComments ? "Hide comments" : "Show comments"}
+              title={showComments ? "Hide comments" : "Show comments"}
             >
-              <Image
-                src="/comment.png"
-                width={20}
-                height={20}
-                alt="Comment"
-                className="w-4 h-4 sm:w-5 sm:h-5"
-              />
+              <div className={`p-1 rounded-full ${showComments ? 'bg-blue-600' : 'bg-blue-500'}`}>
+                <MessageCircle className="w-4 h-4 text-white" />
+              </div>
             </button>
-            <span className="text-gray-300 text-xs">|</span>
-            <span className="text-gray-500 text-xs font-medium">
+            <span className={`text-sm font-medium ${showComments ? 'text-blue-700' : 'text-blue-600'}`}>
               {commentNumber}<span className="hidden sm:inline"> Comments</span>
             </span>
           </div>
-        </div>
-        <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-lg">
-          <button 
-            onClick={handleShare}
-            className="flex items-center justify-center p-1 hover:bg-slate-200 rounded-lg transition-colors min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
-            aria-label="Share post"
-            title="Share this post"
-          >
-            <Image
-              src="/share.png"
-              width={20}
-              height={20}
-              alt="Share"
-              className="w-4 h-4 sm:w-5 sm:h-5"
-            />
-          </button>
-          <span className="text-gray-300 text-xs">|</span>
-          <span className="text-gray-500 text-xs font-medium">
-            <span className="hidden sm:inline">Share</span>
-          </span>
+          <div className="flex items-center gap-3 bg-gradient-to-r from-green-50 to-green-50 hover:from-green-100 hover:to-green-100 px-4 py-2 rounded-full transition-all duration-200 shadow-sm cursor-pointer">
+            <button 
+              onClick={handleShare}
+              className="flex items-center justify-center p-1 rounded-full transition-colors focus:outline-none"
+              aria-label="Share post"
+              title="Share this post"
+            >
+              <div className="p-1 bg-green-500 rounded-full">
+                <Share2 className="w-4 h-4 text-white" />
+              </div>
+            </button>
+            <span className="text-green-600 text-sm font-medium">
+              <span className="hidden sm:inline">Share</span>
+            </span>
+          </div>
         </div>
       </div>
       

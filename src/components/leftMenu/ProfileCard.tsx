@@ -24,17 +24,18 @@ const ProfileCard = async () => {
   if (!user) return null;
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md text-sm flex flex-col gap-6">
-      <div className="h-20 relative">
+    <div className="p-4 bg-white rounded-lg shadow-md text-sm flex flex-col gap-6 relative w-full max-w-full">
+      <div className="h-20 relative w-full">
         <Image
           src={user.cover || "/noCover.png"}
-          alt=""
+          alt="Profile Cover"
           fill
-          className="rounded-md object-cover"
+          className="rounded-md object-cover w-full h-full"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         <Image
           src={user.avatar || "/noAvatar.png"}
-          alt=""
+          alt="Profile Avatar"
           width={48}
           height={48}
           className="rounded-full object-cover w-12 h-12 absolute left-0 right-0 m-auto -bottom-6 ring-1 ring-white z-10"
