@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const isPublicRoute = createRouteMatcher([
   '/',
+  '/social',
   '/sign-in(.*)',
   '/sign-up(.*)',
   '/api/webhooks(.*)',
@@ -13,13 +14,6 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware((auth, req: NextRequest) => {
-  // Handle root route redirect first
-  if (req.nextUrl.pathname === '/') {
-    const locale = 'en'; // Default locale
-    const redirectUrl = new URL(`/${locale}`, req.url);
-    return NextResponse.redirect(redirectUrl, 307);
-  }
-
   // Apply auth protection for non-public routes
   if (!isPublicRoute(req)) {
     auth().protect();
