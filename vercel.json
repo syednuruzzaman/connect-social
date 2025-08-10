@@ -6,6 +6,12 @@
   "functions": {
     "app/api/**/*.ts": {
       "maxDuration": 30
+    },
+    "app/api/upload/video/route.ts": {
+      "maxDuration": 300
     }
+  },
+  "limits": {
+    "duration": 300
   }
 }
