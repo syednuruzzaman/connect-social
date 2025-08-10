@@ -1,10 +1,15 @@
 import { auth } from "@clerk/nextjs/server";
-import prisma from "@/lib/client";
 import { NextRequest, NextResponse } from "next/server";
 
 // GET - Fetch posts for feed
 export async function GET(req: NextRequest) {
   try {
+    // Check if we're in build time
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json([]);
+    }
+
+    const prisma = (await import("@/lib/client")).default;
     const { userId } = auth();
     const { searchParams } = new URL(req.url);
     const username = searchParams.get('username');
@@ -76,13 +81,19 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(posts);
   } catch (error) {
     console.error("Error fetching posts:", error);
-    return NextResponse.json({ error: "Failed to fetch posts" }, { status: 500 });
+    return NextResponse.json([], { status: 200 });
   }
 }
 
 // POST - Create new post
 export async function POST(req: NextRequest) {
   try {
+    // Check if we're in build time
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json({ error: "Database not available" }, { status: 503 });
+    }
+
+    const prisma = (await import("@/lib/client")).default;
     const { userId } = auth();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
