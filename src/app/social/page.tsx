@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import ClientUserSetup from "@/components/ClientUserSetup";
 import ClientAddPost from "@/components/ClientAddPost";
