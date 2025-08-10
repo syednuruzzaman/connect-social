@@ -11,20 +11,27 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware((auth, req) => {
-  // Add error handling for production
+  // Skip protection for public routes
+  if (isPublicRoute(req)) {
+    return;
+  }
+
   try {
-    if (!isPublicRoute(req)) {
-      auth().protect();
-    }
+    // Protect private routes
+    auth().protect();
   } catch (error) {
-    console.error('Middleware error:', error);
-    // In production, you might want to redirect to sign-in or show an error page
+    console.error('Middleware authentication error:', error);
+    
+    // In production, handle gracefully
     if (process.env.NODE_ENV === 'production') {
-      // Allow the request to continue for debugging purposes
-      console.log('Continuing request due to auth error in production');
-    } else {
-      throw error;
+      // Redirect to sign-in for authentication errors
+      const signInUrl = new URL('/sign-in', req.url);
+      signInUrl.searchParams.set('redirect_url', req.url);
+      return Response.redirect(signInUrl);
     }
+    
+    // Re-throw in development for debugging
+    throw error;
   }
 });
 
