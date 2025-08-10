@@ -59,8 +59,8 @@ export async function POST(request: NextRequest) {
           // Audio settings
           audio_codec: 'aac',
           bit_rate: '1000k',
-          // Maximum file size for processing (100MB)
-          bytes: 100 * 1024 * 1024,
+          // Maximum file size for processing (500MB)
+          bytes: 500 * 1024 * 1024,
         },
         (error, result) => {
           if (error) {
