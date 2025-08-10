@@ -1,19 +1,33 @@
+'use client';
+
+import Navbar from "@/components/Navbar";
+import ClientUserSetup from "@/components/ClientUserSetup";
+import ClientAddPost from "@/components/ClientAddPost";
+import ClientFeed from "@/components/feed/ClientFeed";
+import ClientSidebar from "@/components/ClientSidebar";
+
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8 text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">Connect Social</h1>
-        <p className="text-gray-600 mb-6">
-          Welcome to your social media platform! 🎉
-        </p>
-        <a 
-          href="/social" 
-          className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700"
-        >
-          Enter Social App →
-        </a>
-        <div className="mt-4 text-sm text-gray-500">
-          <p>✅ Successfully deployed on Vercel</p>
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* Main Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Main Content */}
+          <div className="lg:col-span-3">
+            <div className="space-y-6">
+              <ClientUserSetup />
+              <ClientAddPost />
+              <ClientFeed />
+            </div>
+          </div>
+          
+          {/* Right Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-6">
+              <ClientSidebar />
+            </div>
+          </div>
         </div>
       </div>
     </div>
