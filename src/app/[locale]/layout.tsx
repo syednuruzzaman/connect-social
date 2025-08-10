@@ -1,6 +1,5 @@
 import Navbar from "../../components/Navbar";
 import { Inter } from "next/font/google";
-import "../globals.css";
 
 // Force dynamic rendering to match root layout for Clerk authentication
 export const dynamic = 'force-dynamic';

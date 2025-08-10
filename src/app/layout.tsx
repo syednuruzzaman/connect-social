@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ReactNode } from 'react';
+import "./globals.css";
 
 // Force dynamic rendering for Clerk authentication
 export const dynamic = 'force-dynamic';
