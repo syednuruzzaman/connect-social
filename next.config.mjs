@@ -13,7 +13,9 @@ const nextConfig = {
   },
   typescript: {
     ignoreBuildErrors: true,
-  }
+  },
+  // For better deployment compatibility
+  trailingSlash: true
 }
 
-export default withNextIntl(nextConfig);
+export default nextConfig;
